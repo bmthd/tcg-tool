@@ -1,0 +1,17 @@
+{
+  "projectName": "tcg-tool",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "bun",
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "form",
+    "t3env",
+    "table",
+    "tanstack-query"
+  ]
+}
