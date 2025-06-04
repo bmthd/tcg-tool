@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import Header from '../components/Header'
 
-import TanStackQueryLayout from './src/integrations/tanstack-query/layout.tsx'
+// import TanStackQueryLayout from './src/integrations/tanstack-query/layout.tsx'
 
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -19,7 +19,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       <Outlet />
       <TanStackRouterDevtools />
 
-      <TanStackQueryLayout />
+      {/* <TanStackQueryLayout /> */}
     </>
   ),
 })
