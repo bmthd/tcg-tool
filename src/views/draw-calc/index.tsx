@@ -8,24 +8,21 @@ import {
 	PlusCircle,
 } from "lucide-react";
 import type React from "react";
-import {
-	type JSX,
-	useReducer,
-} from "react";
-import { DrawSettingsForm} from "./form";
+import { type JSX, useReducer } from "react";
+import { DrawSettingsForm } from "./form";
 
 // --- Main Application Component ---
 export function DrawCalcPage(): JSX.Element {
 	return (
-		<div className="flex flex-col items-center min-h-screen p-4 bg-slate-900 text-slate-100 selection:bg-sky-500 selection:text-white">
-			<div className="w-full max-w-xl p-6 md:p-8 space-y-6 bg-slate-800 rounded-xl shadow-2xl mb-8">
-				<AppHeader />
-				<AppDescription />
-				<UsageGuide />
-				<DrawSettingsForm />
+			<div className="flex flex-col items-center min-h-screen p-4 bg-slate-900 text-slate-100 selection:bg-sky-500 selection:text-white">
+				<div className="w-full max-w-xl p-6 md:p-8 space-y-6 bg-slate-800 rounded-xl shadow-2xl mb-8">
+					<AppHeader />
+					<AppDescription />
+					<UsageGuide />
+					<DrawSettingsForm />
+				</div>
+				<AppFooter />
 			</div>
-			<AppFooter />
-		</div>
 	);
 }
 
