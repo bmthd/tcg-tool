@@ -1,10 +1,14 @@
+
 import { cx } from "@/utils/cx";
-import type { ChangeEvent } from "react";
+import { useFieldContext } from "@/views/draw-calc/draw-calc.form-context";
+import type { FieldApi } from "@tanstack/react-form";
+import type React from "react";
+import { type ReactNode, useId } from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: "primary" | "secondary" | "danger" | "active";
 	size?: "sm" | "md" | "lg";
-	ref?: React.Ref<HTMLButtonElement>; // React 19: ref is a normal prop
+	ref?: React.Ref<HTMLButtonElement>; 
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -31,6 +35,7 @@ export const Button: React.FC<ButtonProps> = ({
 
 	return (
 		<button
+			type="button"
 			className={cx(
 				baseStyle,
 				variantStyles[variant],
@@ -44,96 +49,237 @@ export const Button: React.FC<ButtonProps> = ({
 	);
 };
 
+export const TextField: React.FC<
+	React.InputHTMLAttributes<HTMLInputElement> & {
+		label?: ReactNode;
+		labelClassName?: string;
+	}
+> = ({ label, labelClassName, className, ...props }) => {
+	const id = useId();
+	const field = useFieldContext<string>();
+	return (
+		<div className="w-full">
+			{label && (
+				<label
+					htmlFor={id}
+					className={cx(
+						"block text-sm font-medium text-slate-400 mb-1",
+						labelClassName,
+					)}
+				>
+					{label}
+				</label>
+			)}
+			<input
+				id={id}
+				{...getFieldProps(field)}
+				className={cx(
+					"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
+					className,
+				)}
+				{...props}
+			/>
+		</div>
+	);
+};
+
 interface InputNumberProps
-	extends Omit<
-		React.InputHTMLAttributes<HTMLInputElement>,
-		"value" | "onChange"
-	> {
-	label?: string;
-	id?: string;
-	value: number | null;
-	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+	extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value"> {
+	label?: ReactNode;
 	labelClassName?: string;
 }
 
 export const InputNumber: React.FC<InputNumberProps> = ({
 	label,
-	id,
-	value,
-	onChange,
-	min,
-	max,
 	className,
 	labelClassName,
 	...props
-}) => (
-	<div className="w-full">
-		{label && (
-			<label
-				htmlFor={id}
-				className={cx(
-					"block text-sm font-medium text-slate-400 mb-1",
-					labelClassName,
-				)}
-			>
-				{label}
-			</label>
-		)}
-		<input
-			type="number"
-			id={id}
-			value={value === null || Number.isNaN(value) ? "" : value}
-			onChange={onChange}
-			min={min}
-			max={max}
-			className={cx(
-				"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
-				className,
+}) => {
+	const id = useId();
+	const field = useFieldContext<number>();
+	return (
+		<div className="w-full">
+			{label && (
+				<label
+					htmlFor={id}
+					className={cx(
+						"block text-sm font-medium text-slate-400 mb-1",
+						labelClassName,
+					)}
+				>
+					{label}
+				</label>
 			)}
-			{...props}
-		/>
-	</div>
-);
+			<input
+				type="number"
+				inputMode="numeric"
+				id={id}
+				value={field.state.value}
+				onChange={(e) => field.handleChange(e.target.valueAsNumber)}
+				className={cx(
+					"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
+					className,
+				)}
+				{...props}
+			/>
+		</div>
+	);
+};
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-	label?: string;
-	id?: string;
+	label?: ReactNode;
 	labelClassName?: string;
 }
 
 export const Select: React.FC<SelectProps> = ({
 	label,
-	id,
-	value,
-	onChange,
 	children,
 	className,
 	labelClassName,
 	...props
-}) => (
-	<div className="w-full">
-		{label && (
-			<label
-				htmlFor={id}
-				className={cx(
-					"block text-sm font-medium text-slate-400 mb-1",
-					labelClassName,
-				)}
-			>
-				{label}
-			</label>
-		)}
-		<select
-			id={id}
-			value={value}
-			onChange={onChange}
-			className={cx(
-				"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
-				className,
+}) => {
+	const id = useId();
+	const field = useFieldContext<string>();
+	return (
+		<div className="w-full">
+			{label && (
+				<label
+					htmlFor={id}
+					className={cx(
+						"block text-sm font-medium text-slate-400 mb-1",
+						labelClassName,
+					)}
+				>
+					{label}
+				</label>
 			)}
-			{...props}
-		>
-			{children}
-		</select>
-	</div>
-);
+			<select
+				id={id}
+				name={field.name}
+				value={field.state.value}
+				onChange={(e) => field.handleChange(e.target.value)}
+				className={cx(
+					"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
+					className,
+				)}
+				{...props}
+			>
+				{children}
+			</select>
+		</div>
+	);
+};
+
+export interface RadioGroupProps {
+	items?: { label: string; value: string }[];
+	renderItem?: (item: { label: string; value: string }) => React.ReactNode;
+	label?: ReactNode;
+	labelClassName?: string;
+}
+
+export const RadioGroup: React.FC<RadioGroupProps> = ({
+	items = [],
+	renderItem,
+	label,
+	labelClassName,
+}) => {
+	const id = useId();
+	const field = useFieldContext<string>();
+	return (
+		<div className="w-full">
+			{label && (
+				<label
+					htmlFor={id}
+					className={cx(
+						"block text-sm font-medium text-slate-400 mb-1",
+						labelClassName,
+					)}
+				>
+					{label}
+				</label>
+			)}
+			<fieldset
+				className="flex gap-2 justify-center"
+				role="radiogroup"
+				aria-labelledby={id}
+			>
+				{items.map((item) => (
+					<label
+						key={item.value}
+						htmlFor={`${id}-${item.value}`}
+						className="flex items-center w-full"
+					>
+						<input
+							type="radio"
+							id={`${id}-${item.value}`}
+							name={id}
+							value={item.value}
+							checked={field.state.value === item.value}
+							onChange={() => field.handleChange(item.value)}
+							className={cx(
+								"h-4 w-4 text-sky-500 border-slate-600 focus:ring-sky-500",
+								renderItem ? "hidden" : "block",
+							)}
+						/>
+						{renderItem ? (
+							renderItem(item)
+						) : (
+							<span className="ml-2 text-sm text-slate-300">{item.label}</span>
+						)}
+					</label>
+				))}
+			</fieldset>
+		</div>
+	);
+};
+
+const getFieldProps = (
+	field: FieldApi<
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any, // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any, // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		any
+	>,
+): React.InputHTMLAttributes<HTMLInputElement> => {
+	return {
+		name: field.name,
+		value: field.state.value,
+		onChange: (e) => field.handleChange(e.target.value),
+		onBlur: field.handleBlur,
+		"aria-invalid":
+			field.state.meta.isTouched && field.state.meta.errors.length > 0,
+	};
+};
