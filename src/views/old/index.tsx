@@ -1,28 +1,32 @@
 import { Section } from "@/ui/layout";
 import { Heading, Text } from "@/ui/typography";
 import {
-	CalculatorIcon,
-	ChevronDownIcon,
-	ChevronUpIcon,
-	InfoIcon,
-	PlusCircleIcon,
+	Calculator,
+	ChevronDown,
+	ChevronUp,
+	Info,
+	PlusCircle,
 } from "lucide-react";
-import { useReducer } from "react";
-import { DrawCalcForm } from "./form";
+import type React from "react";
+import { type JSX, useReducer } from "react";
+import { DrawSettingsForm } from "./form";
 
-export const DrawCalcPage = () => {
+// --- Main Application Component ---
+export function DrawCalcPage(): JSX.Element {
 	return (
-		<div className="flex flex-col items-center min-h-screen p-4 bg-slate-900 text-slate-100 selection:bg-sky-500 selection:text-white">
-			<div className="w-full max-w-xl p-6 md:p-8 space-y-6 bg-slate-800 rounded-xl shadow-2xl mb-8">
-				<AppHeader />
-				<AppDescription />
-				<UsageGuide />
-				<DrawCalcForm />
+			<div className="flex flex-col items-center min-h-screen p-4 bg-slate-900 text-slate-100 selection:bg-sky-500 selection:text-white">
+				<div className="w-full max-w-xl p-6 md:p-8 space-y-6 bg-slate-800 rounded-xl shadow-2xl mb-8">
+					<AppHeader />
+					<AppDescription />
+					<UsageGuide />
+					<DrawSettingsForm />
+				</div>
+				<AppFooter />
 			</div>
-			<AppFooter />
-		</div>
 	);
-};
+}
+
+// --- Application Specific Components ---
 
 const AppHeader: React.FC = () => (
 	<header className="text-center">
@@ -60,9 +64,9 @@ const UsageGuide: React.FC = () => {
 					使い方
 				</Heading>
 				{isOpen ? (
-					<ChevronUpIcon className="text-sky-300" />
+					<ChevronUp className="text-sky-300" />
 				) : (
-					<ChevronDownIcon className="text-sky-300" />
+					<ChevronDown className="text-sky-300" />
 				)}
 			</div>
 			{isOpen && (
@@ -71,7 +75,7 @@ const UsageGuide: React.FC = () => {
 						<li>
 							<strong>ゲームテンプレートの選択:</strong>
 							ドロップダウンメニューから、プレイしているゲームのテンプレートを選択します。「カスタム」を選択すると、全ての値を自由に設定できます。各テンプレートには、一般的なデッキ枚数や初期手札枚数がプリセットされています。情報アイコン（
-							<InfoIcon size={16} className="inline-block text-blue-400" />
+							<Info size={16} className="inline-block text-blue-400" />
 							）で詳細を確認できます。
 						</li>
 						<li>
@@ -85,7 +89,7 @@ const UsageGuide: React.FC = () => {
 						<li>
 							<strong>特定カード情報の設定:</strong>
 							「特定カードを追加」ボタン（
-							<PlusCircleIcon size={16} className="inline-block" />
+							<PlusCircle size={16} className="inline-block" />
 							）で、確率を知りたいカードの情報を入力します（最大3種類まで）。
 							<ul className="list-disc list-inside ml-4 text-xs">
 								<li>
@@ -104,7 +108,7 @@ const UsageGuide: React.FC = () => {
 						</li>
 						<li>
 							<strong>確率の計算と確認:</strong> 「確率を計算」ボタン（
-							<CalculatorIcon size={16} className="inline-block" />
+							<Calculator size={16} className="inline-block" />
 							）を押すと、結果が表示されます。「ちょうど指定枚数引く確率」と「それぞれ指定枚数以上引く確率」の2種類が表示されます。
 						</li>
 					</ol>

@@ -1,6 +1,5 @@
-
 import { cx } from "@/utils/cx";
-import { useFieldContext } from "@/views/draw-calc/draw-calc.form-context";
+import { useFieldContext } from "@/views/draw-calc/form-context";
 import type { FieldApi } from "@tanstack/react-form";
 import type React from "react";
 import { type ReactNode, useId } from "react";
@@ -8,7 +7,7 @@ import { type ReactNode, useId } from "react";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: "primary" | "secondary" | "danger" | "active";
 	size?: "sm" | "md" | "lg";
-	ref?: React.Ref<HTMLButtonElement>; 
+	ref?: React.Ref<HTMLButtonElement>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -136,6 +135,7 @@ export const Select: React.FC<SelectProps> = ({
 	children,
 	className,
 	labelClassName,
+	onChange,
 	...props
 }) => {
 	const id = useId();
@@ -157,7 +157,10 @@ export const Select: React.FC<SelectProps> = ({
 				id={id}
 				name={field.name}
 				value={field.state.value}
-				onChange={(e) => field.handleChange(e.target.value)}
+				onChange={handlerAll(
+					(e) => field.handleChange(e.target.value),
+					onChange,
+				)}
 				className={cx(
 					"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
 					className,
@@ -281,5 +284,15 @@ const getFieldProps = (
 		onBlur: field.handleBlur,
 		"aria-invalid":
 			field.state.meta.isTouched && field.state.meta.errors.length > 0,
+	};
+};
+
+const handlerAll = <T,>(
+	...handlers: (((value: T) => unknown) | undefined)[]
+) => {
+	return (value: T) => {
+		for (const handler of handlers) {
+			handler?.(value);
+		}
 	};
 };
