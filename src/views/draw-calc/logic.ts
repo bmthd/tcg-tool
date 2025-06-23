@@ -29,7 +29,7 @@ export const calc = ({
 	const calculateProbabilityExactly = (
 		N_deck: number,
 		n_hand: number,
-		groups: Output["targetCards"],
+		groups: Pick<Output["targetCards"][number], "K_in_deck" | "k_desired">[],
 	): number => {
 		let product_C_Ki_ki = BigInt(1);
 		let sum_K = 0;
