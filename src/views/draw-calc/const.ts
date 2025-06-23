@@ -8,6 +8,7 @@ import {
 	Shield,
 	Sun,
 } from "lucide-react";
+import type { UnionToTuple } from "type-fest";
 
 // --- Constants ---
 export const MAX_CARD_GROUPS: number = 3;
@@ -22,8 +23,6 @@ interface GameTemplate {
 	description: string;
 	Icon: React.FC<LucideProps>;
 }
-
-export type GameTemplateKey = keyof typeof gameTemplates;
 
 export const gameTemplates = {
 	custom: {
@@ -104,3 +103,9 @@ export const gameTemplates = {
 		Icon: Shield,
 	},
 } as const satisfies Record<string, GameTemplate>;
+
+export type GameTemplateKey = keyof typeof gameTemplates;
+
+export const gameTemplateKeys = Object.keys(
+	gameTemplates,
+) as UnionToTuple<GameTemplateKey>;
