@@ -117,6 +117,7 @@ export const InputNumber: React.FC<InputNumberProps> = ({
 				onChange={(e) => field.handleChange(e.target.valueAsNumber)}
 				className={cx(
 					"block w-full px-3 py-2.5 bg-slate-700 border border-slate-600 text-slate-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 sm:text-sm transition duration-150",
+					"[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0",
 					className,
 				)}
 				{...props}

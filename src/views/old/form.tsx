@@ -2,13 +2,7 @@ import { Button, InputNumber, Select } from "@/ui/form";
 import { Section } from "@/ui/layout";
 import { Tooltip } from "@/ui/overlay";
 import { Heading, Text } from "@/ui/typography";
-import {
-	Calculator,
-	PlusCircle,
-	Trash2,
-	User,
-	UserCheck,
-} from "lucide-react";
+import { Calculator, PlusCircle, Trash2, User, UserCheck } from "lucide-react";
 import {
 	type ChangeEvent,
 	useCallback,
@@ -304,7 +298,7 @@ export const DrawSettingsForm: React.FC = () => {
 				);
 			}
 		},
-		[]
+		[],
 	);
 
 	const handleAddCardGroup = useCallback((): void => {

@@ -10,16 +10,10 @@ import {
 	UserIcon,
 } from "lucide-react";
 import { useCallback, useState } from "react";
-import * as v from "valibot";
-import { MAX_CARD_GROUPS, gameTemplates } from "./const";
+import { gameTemplates } from "./const";
 import { useAppForm, withForm } from "./form-hook";
-import { calc } from "./logic";
+import * as logic from "./logic";
 import { type Input, type Output, schema } from "./schema";
-
-v.setSpecificMessage(
-	v.minLength,
-	({ input }) => `${input.length}以上で入力してください。`,
-);
 
 export function DrawCalcForm() {
 	const gameTemplate = "custom" as const;
@@ -32,7 +26,9 @@ export function DrawCalcForm() {
 			initialHandSize,
 			gameTemplate,
 			isFirstPlayer: true,
-			targetCards: [{ id: 1, name: "", K_in_deck: 4, k_desired: 1 }],
+			targetCards: [
+				{ id: crypto.randomUUID(), name: "", K_in_deck: 4, k_desired: 1 },
+			],
 		} as Input,
 	});
 
@@ -122,7 +118,7 @@ export function DrawCalcForm() {
 
 			<fieldset className="space-y-2">
 				<legend className="block text-sm font-medium text-slate-400">
-					特定カード情報 (最大 {MAX_CARD_GROUPS}種類)
+					特定カード情報 (最大 {deckSize}種類)
 				</legend>
 				<TargetCardFields form={form} />
 			</fieldset>
@@ -194,7 +190,7 @@ const TargetCardFields = withForm({
 								const isReachedMax = field.state.value.length >= deckSize;
 								const handleClick = () =>
 									field.pushValue({
-										id: Date.now(),
+										id: crypto.randomUUID(),
 										name: "",
 										K_in_deck: 1,
 										k_desired: 1,
@@ -222,11 +218,10 @@ const TargetCardFields = withForm({
 const ResultSubmitButton = withForm({
 	defaultValues: {} as Input, // type only
 	render: ({ form }) => {
-		const [result, setResult] = useState<{
-			probExactly: number;
-			probAtLeast: number;
-			targetCards: Output["targetCards"];
-		} | null>(null);
+		const [result, setResult] = useState<
+			| (ReturnType<typeof logic.calc> & { targetCards: Output["targetCards"] })
+			| null
+		>(null);
 
 		const handleCalculate = useCallback(() => {
 			const deckSize = form.getFieldValue("deckSize");
@@ -237,7 +232,7 @@ const ResultSubmitButton = withForm({
 			// Calculate the effective hand size
 			const effectiveHandSize = initialHandSize + (isFirstPlayer ? 1 : 0);
 
-			const result = calc({
+			const result = logic.calc({
 				deckSize,
 				initialHandSize: effectiveHandSize,
 				targetCards,
@@ -251,19 +246,17 @@ const ResultSubmitButton = withForm({
 
 		return (
 			<div className="mt-4">
-				<form.AppForm>
-					<Button
-						size="lg"
-						className="w-full hover:scale-105"
-						onClick={(e) => {
-							e.preventDefault();
-							handleCalculate();
-						}}
-					>
-						<CalculatorIcon size={16} />
-						確率を計算
-					</Button>
-				</form.AppForm>
+				<Button
+					size="lg"
+					className="w-full hover:scale-105"
+					onClick={(e) => {
+						e.preventDefault();
+						handleCalculate();
+					}}
+				>
+					<CalculatorIcon size={16} />
+					確率を計算
+				</Button>
 				{result ? (
 					<div className="mt-4 p-4 bg-slate-800 rounded-md">
 						{result.targetCards.map((card, index) => {
@@ -274,7 +267,7 @@ const ResultSubmitButton = withForm({
 								</Text>
 							);
 						})}
-						<Text className="text-lg text-sky-300">{`引きたいカードの確率: ${(result.probExactly * 100).toFixed(2)}%`}</Text>
+						<Text className="text-lg text-sky-300">{`引きたいカードの確率: ${(result.probAtLeast * 100).toFixed(2)}%`}</Text>
 					</div>
 				) : null}
 			</div>

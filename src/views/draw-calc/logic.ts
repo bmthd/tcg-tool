@@ -16,8 +16,12 @@ export const calc = ({
 	deckSize,
 	initialHandSize,
 	targetCards,
-}: Pick<Output, "deckSize" | "initialHandSize" | "targetCards">): {
+}: Pick<Output, "deckSize" | "initialHandSize"> & {
+	targetCards: Pick<Output["targetCards"][number], "K_in_deck" | "k_desired">[];
+}): {
+	/** 指定枚数ちょうど引ける確率 */
 	probExactly: number;
+	/** 少なくとも1枚以上引ける確率 */
 	probAtLeast: number;
 } => {
 	const N = deckSize;
