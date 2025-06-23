@@ -267,7 +267,7 @@ const ResultSubmitButton = withForm({
 								</Text>
 							);
 						})}
-						<Text className="text-lg text-sky-300">{`引きたいカードの確率: ${(result.probAtLeast * 100).toFixed(2)}%`}</Text>
+						<Text className="text-lg text-sky-300">{`目的のカードを引ける確率: ${(result.probAtLeast * 100).toFixed(2)}%`}</Text>
 					</div>
 				) : null}
 			</div>
