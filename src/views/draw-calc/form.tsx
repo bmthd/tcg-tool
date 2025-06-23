@@ -45,14 +45,16 @@ export function DrawCalcForm() {
 						<field.Select
 							onChange={handleChange}
 							label={
-								<form.Subscribe selector={(state) => state.values.gameTemplate}>
-									{(value) => (
-										<p>
-											ゲームテンプレート
+								<p>
+									ゲームテンプレート
+									<form.Subscribe
+										selector={(state) => state.values.gameTemplate}
+									>
+										{(value) => (
 											<Tooltip content={gameTemplates[value].description} />
-										</p>
-									)}
-								</form.Subscribe>
+										)}
+									</form.Subscribe>
+								</p>
 							}
 						>
 							{Object.entries(gameTemplates).map(([key, template]) => (
@@ -101,24 +103,31 @@ export function DrawCalcForm() {
 				)}
 			</form.AppField>
 
-			<form.Subscribe
-				selector={(state) =>
-					[state.values.initialHandSize, state.values.isFirstPlayer] as const
-				}
-			>
-				{([initialHandSize, isFirstPlayer]) => (
-					<Text className="text-lg text-slate-400 mt-1">
-						計算上の初期手札 (n):{" "}
-						<span className="font-semibold text-sky-300">
-							{initialHandSize + (isFirstPlayer ? 1 : 0)}枚
-						</span>
-					</Text>
-				)}
-			</form.Subscribe>
+			<Text className="text-lg text-slate-400 mt-1">
+				計算上の初期手札 (n):{" "}
+				<span className="font-semibold text-sky-300">
+					<form.Subscribe
+						selector={(state) =>
+							[
+								state.values.initialHandSize,
+								state.values.isFirstPlayer,
+							] as const
+						}
+					>
+						{([initialHandSize, isFirstPlayer]) =>
+							`${initialHandSize + (isFirstPlayer ? 1 : 0)}枚`
+						}
+					</form.Subscribe>
+				</span>
+			</Text>
 
 			<fieldset className="space-y-2">
 				<legend className="block text-sm font-medium text-slate-400">
-					特定カード情報 (最大 {deckSize}種類)
+					特定カード情報 (最大{" "}
+					<form.Subscribe selector={(state) => state.values.deckSize}>
+						{(deckSize) => deckSize}
+					</form.Subscribe>
+					)種類
 				</legend>
 				<TargetCardFields form={form} />
 			</fieldset>
