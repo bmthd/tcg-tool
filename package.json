@@ -10,7 +10,8 @@
     "test": "vitest run",
     "format": "biome format . --write",
     "lint": "biome lint",
-    "check": "biome check"
+    "check": "biome check",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
