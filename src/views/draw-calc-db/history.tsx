@@ -5,7 +5,6 @@ import { gameTemplates } from "@/views/draw-calc/const";
 import { useLiveQuery } from "@tanstack/react-db";
 import { CalculatorIcon, ClockIcon, TrashIcon } from "lucide-react";
 import { drawCalcCollection } from "./collection";
-import type { DrawCalcData } from "./db-schema";
 
 export const DrawCalcDBHistory = () => {
 	// useLiveQueryでデータを取得（シンプルアプローチ）
@@ -13,20 +12,11 @@ export const DrawCalcDBHistory = () => {
 		data: calculations,
 		isLoading,
 		isError,
-	} = useLiveQuery(drawCalcCollection);
-
-	// データを更新日時で降順ソート
-	const sortedCalculations = calculations
-		? [...calculations]
-				.filter(
-					(calc): calc is DrawCalcData =>
-						calc != null && typeof calc === "object" && "id" in calc,
-				)
-				.sort(
-					(a, b) =>
-						new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-				)
-		: [];
+	} = useLiveQuery((q) =>
+		q
+			.from({ calculations: drawCalcCollection })
+			.orderBy(({ calculations }) => calculations.updatedAt, "desc"),
+	);
 
 	const handleDelete = async (id: string) => {
 		try {
@@ -62,7 +52,7 @@ export const DrawCalcDBHistory = () => {
 		);
 	}
 
-	if (!sortedCalculations || sortedCalculations.length === 0) {
+	if (!calculations || calculations.length === 0) {
 		return (
 			<Section>
 				<div className="text-center py-12">
@@ -81,10 +71,10 @@ export const DrawCalcDBHistory = () => {
 	return (
 		<div className="space-y-4">
 			<Section>
-				<Heading level={2}>計算履歴 ({sortedCalculations.length}件)</Heading>
+				<Heading level={2}>計算履歴 ({calculations.length}件)</Heading>
 			</Section>
 
-			{sortedCalculations?.map((calc) => (
+			{calculations.map((calc) => (
 				<Section key={calc.id} className="border border-slate-600">
 					<div className="flex items-start justify-between">
 						<div className="flex-1">
