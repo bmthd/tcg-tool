@@ -1,4 +1,5 @@
 import {
+	count,
 	createCollection,
 	createLiveQueryCollection,
 	eq,
@@ -12,7 +13,7 @@ export const drawCalcCollection = createCollection(
 		storageKey: "tcg-tool-draw-calculations",
 		id: "draw-calculations",
 		getKey: (item) => item.id,
-		schema: drawCalcSchema
+		schema: drawCalcSchema,
 	}),
 );
 
@@ -40,16 +41,33 @@ export const recentDrawCalcCollection = createLiveQueryCollection((q) =>
 		.limit(3),
 );
 
-// 統計情報用のクエリコレクション（軽量版：IDと基本情報のみ）
-export const drawCalcStatsCollection = createLiveQueryCollection((q) =>
+// 総計算回数を取得するクエリコレクション
+export const drawCalcTotalCountCollection = createLiveQueryCollection((q) =>
+	q.from({ calculations: drawCalcCollection }).select(() => ({
+		totalCount: count("*"),
+	})),
+);
+
+// ゲーム別計算回数を取得するクエリコレクション
+export const drawCalcGameCountCollection = createLiveQueryCollection((q) =>
 	q
 		.from({ calculations: drawCalcCollection })
+		.groupBy(({ calculations }) => calculations.gameTemplate)
 		.select(({ calculations }) => ({
-			id: calculations.id,
 			gameTemplate: calculations.gameTemplate,
+			count: count(calculations.id),
+		})),
+);
+
+// 最新計算を取得するクエリコレクション（1件のみ）
+export const drawCalcLatestCollection = createLiveQueryCollection((q) =>
+	q
+		.from({ calculations: drawCalcCollection })
+		.orderBy(({ calculations }) => calculations.updatedAt, "desc")
+		.limit(1)
+		.select(({ calculations }) => ({
 			updatedAt: calculations.updatedAt,
-		}))
-		.orderBy(({ calculations }) => calculations.updatedAt, "desc"),
+		})),
 );
 
 // データベース操作のヘルパー関数

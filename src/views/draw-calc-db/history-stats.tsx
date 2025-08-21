@@ -3,32 +3,37 @@ import { Heading, Text } from "@/ui/typography";
 import { gameTemplates } from "@/views/draw-calc/const";
 import { useLiveQuery } from "@tanstack/react-db";
 import { BarChartIcon, CalendarIcon, TrendingUpIcon } from "lucide-react";
-import { drawCalcStatsCollection } from "./collection";
+import {
+	drawCalcGameCountCollection,
+	drawCalcLatestCollection,
+	drawCalcTotalCountCollection,
+} from "./collection";
 
 export const HistoryStats = () => {
-	// 軽量なクエリで統計データを取得（IDと基本情報のみ）
-	const { data: statsData, isLoading } = useLiveQuery(drawCalcStatsCollection);
+	// データベースレベルの集計クエリで統計情報を取得
+	const { data: totalData, isLoading: totalLoading } = useLiveQuery(
+		drawCalcTotalCountCollection,
+	);
+	const { data: gameCountData, isLoading: gameCountLoading } = useLiveQuery(
+		drawCalcGameCountCollection,
+	);
+	const { data: latestData, isLoading: latestLoading } = useLiveQuery(
+		drawCalcLatestCollection,
+	);
 
-	// クライアント側で統計を計算
-	const stats = statsData 
-		? {
-				totalCount: statsData.length,
-				gamesCount: statsData.reduce(
-					(acc, item) => {
-						acc[item.gameTemplate] = (acc[item.gameTemplate] || 0) + 1;
-						return acc;
-					},
-					{} as Record<string, number>,
-				),
-				latestCalculation: statsData[0] || null, // 既にソート済みなので最初が最新
-			}
-		: {
-				totalCount: 0,
-				gamesCount: {},
-				latestCalculation: null,
-			};
+	const isLoading = totalLoading || gameCountLoading || latestLoading;
 
-	const { totalCount, gamesCount, latestCalculation } = stats;
+	// クエリ結果から統計情報を組み立て
+	const totalCount = totalData?.[0]?.totalCount || 0;
+	const gamesCount =
+		gameCountData?.reduce(
+			(acc, item) => {
+				acc[item.gameTemplate] = item.count;
+				return acc;
+			},
+			{} as Record<string, number>,
+		) || {};
+	const latestCalculation = latestData?.[0] || null;
 
 	if (isLoading) {
 		return (
