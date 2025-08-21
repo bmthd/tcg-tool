@@ -8,6 +8,7 @@ import { PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { createDrawCalc, drawCalcCollection } from "./collection";
 import type { TargetCard } from "./db-schema";
+import { RecentCalculations } from "./recent-calculations";
 
 export const DrawCalcDBForm = () => {
 	// フォーム状態
@@ -367,6 +368,9 @@ export const DrawCalcDBForm = () => {
 					</div>
 				</Section>
 			)}
+
+			{/* 最近の計算セクション */}
+			<RecentCalculations />
 		</div>
 	);
 };
