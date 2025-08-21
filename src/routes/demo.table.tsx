@@ -1,4 +1,4 @@
-import React from "react";
+import { compareItems, rankItem } from "@tanstack/match-sorter-utils";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	flexRender,
@@ -9,10 +9,11 @@ import {
 	sortingFns,
 	useReactTable,
 } from "@tanstack/react-table";
-import { compareItems, rankItem } from "@tanstack/match-sorter-utils";
+import React from "react";
 
 import { makeData } from "../data/demo-table-data";
 
+import type { RankingInfo } from "@tanstack/match-sorter-utils";
 import type {
 	Column,
 	ColumnDef,
@@ -20,7 +21,6 @@ import type {
 	FilterFn,
 	SortingFn,
 } from "@tanstack/react-table";
-import type { RankingInfo } from "@tanstack/match-sorter-utils";
 
 import type { Person } from "../data/demo-table-data";
 
@@ -38,7 +38,7 @@ declare module "@tanstack/react-table" {
 }
 
 // Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+const fuzzyFilter: FilterFn<unknown> = (row, columnId, value, addMeta) => {
 	// Rank the item
 	const itemRank = rankItem(row.getValue(columnId), value);
 
@@ -52,15 +52,16 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 };
 
 // Define a custom fuzzy sort function that will sort by rank if the row has ranking information
-const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
+const fuzzySort: SortingFn<Person> = (rowA, rowB, columnId) => {
 	let dir = 0;
 
 	// Only sort by rank if the column has ranking information
 	if (rowA.columnFiltersMeta[columnId]) {
-		dir = compareItems(
-			rowA.columnFiltersMeta[columnId]?.itemRank!,
-			rowB.columnFiltersMeta[columnId]?.itemRank!,
-		);
+		const rankA = rowA.columnFiltersMeta[columnId]?.itemRank;
+		const rankB = rowB.columnFiltersMeta[columnId]?.itemRank;
+		if (rankA && rankB) {
+			dir = compareItems(rankA, rankB);
+		}
 	}
 
 	// Provide an alphanumeric fallback for when the item ranks are equal
@@ -75,7 +76,7 @@ function TableDemo() {
 	);
 	const [globalFilter, setGlobalFilter] = React.useState("");
 
-	const columns = React.useMemo<ColumnDef<Person, any>[]>(
+	const columns = React.useMemo<ColumnDef<Person, unknown>[]>(
 		() => [
 			{
 				accessorKey: "id",
@@ -138,7 +139,7 @@ function TableDemo() {
 				table.setSorting([{ id: "fullName", desc: false }]);
 			}
 		}
-	}, [table.getState().columnFilters[0]?.id]);
+	}, [table]);
 
 	return (
 		<div className="min-h-screen bg-gray-900 p-6">
@@ -220,6 +221,7 @@ function TableDemo() {
 			</div>
 			<div className="h-4" />
 			<div className="flex flex-wrap items-center gap-2 text-gray-200">
+				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 				<button
 					className="px-3 py-1 bg-gray-800 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
 					onClick={() => table.setPageIndex(0)}
@@ -227,6 +229,7 @@ function TableDemo() {
 				>
 					{"<<"}
 				</button>
+				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 				<button
 					className="px-3 py-1 bg-gray-800 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
 					onClick={() => table.previousPage()}
@@ -234,6 +237,7 @@ function TableDemo() {
 				>
 					{"<"}
 				</button>
+				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 				<button
 					className="px-3 py-1 bg-gray-800 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
 					onClick={() => table.nextPage()}
@@ -241,6 +245,7 @@ function TableDemo() {
 				>
 					{">"}
 				</button>
+				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 				<button
 					className="px-3 py-1 bg-gray-800 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
 					onClick={() => table.setPageIndex(table.getPageCount() - 1)}
@@ -285,12 +290,14 @@ function TableDemo() {
 				{table.getPrePaginationRowModel().rows.length} Rows
 			</div>
 			<div className="mt-4 flex gap-2">
+				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 				<button
 					onClick={() => rerender()}
 					className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
 				>
 					Force Rerender
 				</button>
+				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 				<button
 					onClick={() => refreshData()}
 					className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -312,6 +319,7 @@ function TableDemo() {
 	);
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function Filter({ column }: { column: Column<any, unknown> }) {
 	const columnFilterValue = column.getFilterValue();
 
@@ -320,7 +328,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
 			type="text"
 			value={(columnFilterValue ?? "") as string}
 			onChange={(value) => column.setFilterValue(value)}
-			placeholder={`Search...`}
+			placeholder={"Search..."}
 			className="w-full px-2 py-1 bg-gray-700 text-white rounded-md border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
 		/>
 	);
@@ -349,7 +357,7 @@ function DebouncedInput({
 		}, debounce);
 
 		return () => clearTimeout(timeout);
-	}, [value]);
+	}, [value, debounce, onChange]);
 
 	return (
 		<input
