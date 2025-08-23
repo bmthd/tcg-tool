@@ -10,29 +10,7 @@ export interface TargetCard {
 }
 
 // 計算データの型定義
-export interface DrawCalcData {
-	/** unique id for this calculation */
-	id: string;
-	/** size of the deck */
-	deckSize: number;
-	/** size of the initial hand */
-	initialHandSize: number;
-	/** game title from supported templates */
-	gameTemplate: (typeof gameTemplateKeys)[number];
-	/** whether the player is the first player */
-	isFirstPlayer: boolean;
-	/** cards to calculate the draw probabilities for */
-	targetCards: TargetCard[];
-	/** calculated probability results */
-	result?: {
-		probExactly: number;
-		probAtLeast: number;
-	};
-	/** when this calculation was created */
-	createdAt: string; // ISO string for localStorage compatibility
-	/** when this calculation was last updated */
-	updatedAt: string; // ISO string for localStorage compatibility
-}
+export type DrawCalcData = v.InferInput<typeof drawCalcSchema> 
 
 // バリデーション用のスキーマ（オプション）
 export const targetCardSchema = v.object({
