@@ -14,7 +14,7 @@ interface HistoryItemProps {
 export const HistoryItem = ({ calculationId }: HistoryItemProps) => {
 	// 単一アイテムを取得するクエリ
 	const {
-		data: calc,
+		data: [calculation],
 		isLoading,
 		isError,
 	} = useLiveQuery((q) =>
@@ -43,7 +43,7 @@ export const HistoryItem = ({ calculationId }: HistoryItemProps) => {
 		);
 	}
 
-	if (isError || !calc || calc.length === 0) {
+	if (isError || !calculation) {
 		return (
 			<Section className="border border-red-600">
 				<Text className="text-red-300 text-center">
@@ -52,8 +52,6 @@ export const HistoryItem = ({ calculationId }: HistoryItemProps) => {
 			</Section>
 		);
 	}
-
-	const calculation = calc[0]; // 単一のアイテム
 
 	return (
 		<Section className="border border-slate-600">

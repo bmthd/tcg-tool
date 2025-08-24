@@ -10,7 +10,7 @@ export interface TargetCard {
 }
 
 // 計算データの型定義
-export type DrawCalcData = v.InferInput<typeof drawCalcSchema> 
+export type DrawCalcData = v.InferInput<typeof drawCalcSchema>;
 
 // バリデーション用のスキーマ（オプション）
 export const targetCardSchema = v.object({
